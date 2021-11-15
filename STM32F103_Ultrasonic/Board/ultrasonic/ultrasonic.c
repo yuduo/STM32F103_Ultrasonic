@@ -3,7 +3,7 @@
 #include "usart.h"
 #include "timer.h"
 
-UltrasonicDef ultrasonic[2];
+UltrasonicDef ultrasonic[4];
 
 //float distance_ultrasonic[ULTRASONIC_NUMBER];
 //uint8_t flag_ultrasonic[ULTRASONIC_NUMBER];
@@ -13,87 +13,108 @@ UltrasonicDef ultrasonic[2];
 
 void ULTRASONIC_Init(void)
 {
-  GPIO_InitTypeDef  GPIO_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
- 	NVIC_InitTypeDef NVIC_InitStructure;
- 	
-	RCC_APB2PeriphClockCmd(UL1_TRIG_CLK, ENABLE);	             //Ê¹ÄÜPC¶Ë¿ÚÊ±ÖÓ
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);        //Íâ²¿ÖÐ¶Ï£¬ÐèÒªÊ¹ÄÜAFIOÊ±ÖÓ
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
 
-	GPIO_InitStructure.GPIO_Pin = UL1_TRIG_PIN | UL2_TRIG_PIN;	// ¶Ë¿ÚÅäÖÃ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		        //ÍÆÍìÊä³ö
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		        //IO¿ÚËÙ¶ÈÎª50MHz
-	GPIO_Init(UL1_TRIG_PORT, &GPIO_InitStructure);					    //¸ù¾ÝÉè¶¨²ÎÊý³õÊ¼»¯GPIO¶Ë¿Ú
+  RCC_APB2PeriphClockCmd(UL1_ECHO_CLK, ENABLE);        //ä½¿èƒ½PCç«¯å£æ—¶é’Ÿ
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+
+  RCC_APB2PeriphClockCmd(UL2_ECHO_CLK, ENABLE);        //ä½¿èƒ½PCç«¯å£æ—¶é’Ÿ
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+
+  RCC_APB2PeriphClockCmd(UL3_ECHO_CLK, ENABLE);        //ä½¿èƒ½PCç«¯å£æ—¶é’Ÿ
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+
+  RCC_APB2PeriphClockCmd(UL4_ECHO_CLK, ENABLE);        //ä½¿èƒ½PCç«¯å£æ—¶é’Ÿ
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+
+  GPIO_InitStructure.GPIO_Pin = UL1_TRIG_PIN | UL2_TRIG_PIN | UL3_TRIG_PIN | UL4_TRIG_PIN; // ç«¯å£é…ç½®
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;                                         //æŽ¨æŒ½è¾“å‡º
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;                                        //IOå£é€Ÿåº¦ä¸º50MHz
+  GPIO_Init(UL1_TRIG_PORT, &GPIO_InitStructure);                                           //æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ–GPIOç«¯å£
   GPIO_Init(UL2_TRIG_PORT, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = UL1_ECHO_PIN | UL2_ECHO_PIN;  // ¶Ë¿ÚÅäÖÃ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD; 		          //ÏÂÀ­ÊäÈë
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		        //IO¿ÚËÙ¶ÈÎª50MHz
-	GPIO_Init(UL1_ECHO_PORT, &GPIO_InitStructure);					    //¸ù¾ÝÉè¶¨²ÎÊý³õÊ¼»¯GPIO¶Ë¿Ú
+  GPIO_Init(UL3_TRIG_PORT, &GPIO_InitStructure);
+  GPIO_Init(UL4_TRIG_PORT, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = UL1_ECHO_PIN | UL2_ECHO_PIN | UL3_ECHO_PIN | UL4_ECHO_PIN; // ç«¯å£é…ç½®
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;                                            //ä¸‹æ‹‰è¾“å…¥
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;                                        //IOå£é€Ÿåº¦ä¸º50MHz
+  GPIO_Init(UL1_ECHO_PORT, &GPIO_InitStructure);                                           //æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ–GPIOç«¯å£
   GPIO_Init(UL2_ECHO_PORT, &GPIO_InitStructure);
-  GPIO_ResetBits(UL1_ECHO_PORT, UL1_ECHO_PIN);                //ÉèÖÃECHO½ÅµÄ³õÊ¼×´Ì¬
-	
-	
-	//GPIOC.5 ÖÐ¶ÏÏßÒÔ¼°ÖÐ¶Ï³õÊ¼»¯ÅäÖÃ
-	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource5 | GPIO_PinSource7);
+  GPIO_Init(UL3_ECHO_PORT, &GPIO_InitStructure);
+  GPIO_Init(UL4_ECHO_PORT, &GPIO_InitStructure);
+  GPIO_ResetBits(UL1_ECHO_PORT, UL1_ECHO_PIN); //è®¾ç½®ECHOè„šçš„åˆå§‹çŠ¶æ€
+  GPIO_ResetBits(UL2_ECHO_PORT, UL1_ECHO_PIN);
+  GPIO_ResetBits(UL3_ECHO_PORT, UL1_ECHO_PIN);
+  GPIO_ResetBits(UL4_ECHO_PORT, UL1_ECHO_PIN);
 
-  EXTI_InitStructure.EXTI_Line=EXTI_Line5 | EXTI_Line7;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;        //ÉÏÉýÑØ´¥·¢
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);                               //¸ù¾ÝEXTI_InitStructÖÐÖ¸¶¨µÄ²ÎÊý³õÊ¼»¯ÍâÉèEXTI¼Ä´æÆ÷
-	
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;			      //Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//ÇÀÕ¼ÓÅÏÈ¼¶2£¬ 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					//×ÓÓÅÏÈ¼¶1
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//Ê¹ÄÜÍâ²¿ÖÐ¶ÏÍ¨µÀ
-	NVIC_Init(&NVIC_InitStructure);
+  //GPIOC.5 ä¸­æ–­çº¿ä»¥åŠä¸­æ–­åˆå§‹åŒ–é…ç½®
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource8);
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource15 | GPIO_PinSource8 | GPIO_PinSource9);
+  EXTI_InitStructure.EXTI_Line = EXTI_Line8 | EXTI_Line7;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling; //ä¸Šå‡æ²¿è§¦å‘
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure); //æ ¹æ®EXTI_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾EXTIå¯„å­˜å™¨
 
-  TIM3_Int_Init(9,71);                                    //³õÊ¼»¯TIM3¶¨Ê±Æ÷£¬¼ÆÊýÒ»´ÎÎª1/100000S£¨10us£©£º1/(72M/(719+1))s
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;           //ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02; //æŠ¢å ä¼˜å…ˆçº§2ï¼Œ
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;        //å­ä¼˜å…ˆçº§1
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;              //ä½¿èƒ½å¤–éƒ¨ä¸­æ–­é€šé“
+  NVIC_Init(&NVIC_InitStructure);
+
+  TIM3_Int_Init(9, 71); //åˆå§‹åŒ–TIM3å®šæ—¶å™¨ï¼Œè®¡æ•°ä¸€æ¬¡ä¸º1/100000Sï¼ˆ10usï¼‰ï¼š1/(72M/(719+1))s
 }
-	
-//·¢ËÍd´óÓÚ10usµÄÂö³å´¥·¢ÐÅºÅ
+
+//å‘é€då¤§äºŽ10usçš„è„‰å†²è§¦å‘ä¿¡å·
 void ULTRASONIC_Measure(void)
 {
   /* UL1 */
-  //distance_ultrasonic[0] = 2;  //Éè¶¨³õÖµ£¨¿ÉÒÔÌ½²âµÄ×îÐ¡¾àÀë£©£¬Èç¹ûÊý¾ÝÒ»Ö±Îª2ËµÃ÷³¬Éù²¨Ä£¿éÃ»ÓÐÁ¬½Ó
-//  GPIO_ResetBits(UL1_ECHO_PORT, UL1_ECHO_PIN); //¸´Î»ECHOÒý½Å£¬¿ÉÒÔ·ÀÖ¹ÔÚ´øµç°Îµô³¬Éù²¨Ä£¿éÊ±³ÌÐòËÀµô¡£
-  
-	GPIO_SetBits(UL1_TRIG_PORT, UL1_TRIG_PIN);
-	delay_us(15);
-	GPIO_ResetBits(UL1_TRIG_PORT, UL1_TRIG_PIN);
-  //delay_ms(ULTRASONIC_TIM_MAX_TIME);  //µ±Ç°Ê±¼ä¿ÉÒÔÈ·±£Ò»´Î²âÁ¿ÒÑ¾­Íê³É               //·ÖÊ±²âÁ¿£¬Éè¶¨Ê±¼äÎªÎª»ØÏì×î³¤Ê±¼ä
-  
+  //distance_ultrasonic[0] = 2;  //è®¾å®šåˆå€¼ï¼ˆå¯ä»¥æŽ¢æµ‹çš„æœ€å°è·ç¦»ï¼‰ï¼Œå¦‚æžœæ•°æ®ä¸€ç›´ä¸º2è¯´æ˜Žè¶…å£°æ³¢æ¨¡å—æ²¡æœ‰è¿žæŽ¥
+  //  GPIO_ResetBits(UL1_ECHO_PORT, UL1_ECHO_PIN); //å¤ä½ECHOå¼•è„šï¼Œå¯ä»¥é˜²æ­¢åœ¨å¸¦ç”µæ‹”æŽ‰è¶…å£°æ³¢æ¨¡å—æ—¶ç¨‹åºæ­»æŽ‰ã€‚
+
+  GPIO_SetBits(UL1_TRIG_PORT, UL1_TRIG_PIN);
+  delay_us(15);
+  GPIO_ResetBits(UL1_TRIG_PORT, UL1_TRIG_PIN);
+  //delay_ms(ULTRASONIC_TIM_MAX_TIME);  //å½“å‰æ—¶é—´å¯ä»¥ç¡®ä¿ä¸€æ¬¡æµ‹é‡å·²ç»å®Œæˆ               //åˆ†æ—¶æµ‹é‡ï¼Œè®¾å®šæ—¶é—´ä¸ºä¸ºå›žå“æœ€é•¿æ—¶é—´
+
   /* UL2 */
   //distance_ultrasonic[1] = 2;
-//  GPIO_ResetBits(UL2_ECHO_PORT,UL2_ECHO_PIN);
-  
+  //  GPIO_ResetBits(UL2_ECHO_PORT,UL2_ECHO_PIN);
+
   GPIO_SetBits(UL2_TRIG_PORT, UL2_TRIG_PIN);
   delay_us(15);
   GPIO_ResetBits(UL2_TRIG_PORT, UL2_TRIG_PIN);
- // delay_ms(ULTRASONIC_TIM_MAX_TIME);
+  // delay_ms(ULTRASONIC_TIM_MAX_TIME);
+
+  GPIO_SetBits(UL3_TRIG_PORT, UL3_TRIG_PIN);
+  delay_us(15);
+  GPIO_ResetBits(UL3_TRIG_PORT, UL3_TRIG_PIN);
+
+  GPIO_SetBits(UL4_TRIG_PORT, UL4_TRIG_PIN);
+  delay_us(15);
+  GPIO_ResetBits(UL4_TRIG_PORT, UL4_TRIG_PIN);
 }
 
-
-
 void EXTI9_5_IRQHandler(void)
-{		
-  /*Ultrasonic 1*/	
-	if(EXTI_GetITStatus(EXTI_Line5) != RESET)
-	{
-    EXTI_ClearITPendingBit(EXTI_Line5);	 
-		if((GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)))  //read rising 
+{
+  /*Ultrasonic 1*/
+  if (EXTI_GetITStatus(EXTI_Line8) != RESET)
+  {
+    EXTI_ClearITPendingBit(EXTI_Line8);
+    if ((GPIO_ReadInputDataBit(UL1_ECHO_PORT, UL1_ECHO_PIN))) //read rising
     {
       ultrasonic[0].flag = 1;
       ultrasonic[0].start_time = millis();
     }
-    else   //read falling
+    else //read falling
     {
-      if(1 == ultrasonic[0].flag)
+      if (1 == ultrasonic[0].flag)
       {
         ultrasonic[0].flag = 0;
         ultrasonic[0].end_time = millis();
-        if(ultrasonic[0].end_time - ultrasonic[0].start_time > 1500)  //cnt overflow
+        if (ultrasonic[0].end_time - ultrasonic[0].start_time > 1500) //cnt overflow
         {
           ultrasonic[0].distance = MAX_MEASURE_DISTANCE;
         }
@@ -103,23 +124,23 @@ void EXTI9_5_IRQHandler(void)
         }
       }
     }
-	}
-  /*Ultrasonic 1*/	
-	if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-	{
-    EXTI_ClearITPendingBit(EXTI_Line7);	 
-		if((GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_7)))  //read rising 
+  }
+  /*Ultrasonic 1*/
+  if (EXTI_GetITStatus(EXTI_Line15) != RESET)
+  {
+    EXTI_ClearITPendingBit(EXTI_Line15);
+    if ((GPIO_ReadInputDataBit(UL2_ECHO_PORT, UL2_ECHO_PIN))) //read rising
     {
       ultrasonic[1].flag = 1;
       ultrasonic[1].start_time = millis();
     }
-    else   //read falling
+    else //read falling
     {
-      if(1 == ultrasonic[1].flag)
+      if (1 == ultrasonic[1].flag)
       {
         ultrasonic[1].flag = 0;
         ultrasonic[1].end_time = millis();
-        if(ultrasonic[1].end_time - ultrasonic[1].start_time > 1500)  //cnt overflow
+        if (ultrasonic[1].end_time - ultrasonic[1].start_time > 1500) //cnt overflow
         {
           ultrasonic[1].distance = MAX_MEASURE_DISTANCE;
         }
@@ -129,33 +150,58 @@ void EXTI9_5_IRQHandler(void)
         }
       }
     }
-	}
-//  /* Ultrasonic 2 */
-//  if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-//	{
-//    EXTI_ClearITPendingBit(EXTI_Line7);	 
-//		if((GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_7)))  //read rising 
-//    {
-//      TIM_SetCounter(TIM3,0);
-//      TIM_Cmd(TIM3,ENABLE);
-//      flag_ultrasonic[1] = 1;
-//    }
-//    else   //read falling
-//    {
-//      if(flag_ultrasonic[1])
-//      {
-//        TIM_Cmd(TIM3, DISABLE);    //close timer
-//        flag_ultrasonic[1] = 0;       //clear flag
-//        if(TIM_GetCounter(TIM3) >= ULTRASONIC_TIM_MAX_COUNT)  //cnt overflow
-//        {
-//          distance_ultrasonic[1] = MAX_MEASURE_DISTANCE;
-//        }
-//        else
-//        {
-//          distance_ultrasonic[1] = TIM_GetCounter(TIM3) * 340 / 2000.0;
-//        }
-//      }
-//    }
-//	}
-}
+  }
 
+  /*Ultrasonic 3*/
+  if (EXTI_GetITStatus(EXTI_Line8) != RESET)
+  {
+    EXTI_ClearITPendingBit(EXTI_Line8);
+    if ((GPIO_ReadInputDataBit(UL3_ECHO_PORT, UL3_ECHO_PIN))) //read rising
+    {
+      ultrasonic[2].flag = 1;
+      ultrasonic[2].start_time = millis();
+    }
+    else //read falling
+    {
+      if (1 == ultrasonic[2].flag)
+      {
+        ultrasonic[2].flag = 0;
+        ultrasonic[2].end_time = millis();
+        if (ultrasonic[2].end_time - ultrasonic[2].start_time > 1500) //cnt overflow
+        {
+          ultrasonic[2].distance = MAX_MEASURE_DISTANCE;
+        }
+        else
+        {
+          ultrasonic[2].distance = (ultrasonic[2].end_time - ultrasonic[2].start_time) * 340 / 2000.0;
+        }
+      }
+    }
+  }
+  /*Ultrasonic 4*/
+  if (EXTI_GetITStatus(EXTI_Line9) != RESET)
+  {
+    EXTI_ClearITPendingBit(EXTI_Line9);
+    if ((GPIO_ReadInputDataBit(UL4_ECHO_PORT, UL4_ECHO_PIN))) //read rising
+    {
+      ultrasonic[3].flag = 1;
+      ultrasonic[3].start_time = millis();
+    }
+    else //read falling
+    {
+      if (1 == ultrasonic[3].flag)
+      {
+        ultrasonic[3].flag = 0;
+        ultrasonic[3].end_time = millis();
+        if (ultrasonic[3].end_time - ultrasonic[3].start_time > 1500) //cnt overflow
+        {
+          ultrasonic[3].distance = MAX_MEASURE_DISTANCE;
+        }
+        else
+        {
+          ultrasonic[3].distance = (ultrasonic[3].end_time - ultrasonic[3].start_time) * 340 / 2000.0;
+        }
+      }
+    }
+  }
+}
