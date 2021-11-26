@@ -22,52 +22,40 @@
   */
 void usart1_init(uint32_t bound) 
 {
-  /*定义初始化结构体*/
-  GPIO_InitTypeDef   GPIO_InitStructure;
-	USART_InitTypeDef  USART_InitStructure;
-	#if EN_USART1_RX		
-	NVIC_InitTypeDef   NVIC_InitStructure;
-	#endif
-	
-	/* 开启GPIOA端口时钟及USART1串口时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);		//使能USART1，GPIOA时钟
- 	
-	/* 复位串口1 */
-	USART_DeInit(USART1);  //复位串口1
-	
-	/* 配置USART1_TX（PA9）引脚GPIO状态 */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+ //GPIO????
+  GPIO_InitTypeDef GPIO_InitStructure;
+    USART_InitTypeDef USART_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
+     
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);    //??USART2,GPIOA??//USART2_TX   GPIOA.2
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2; //PA.2
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
-  GPIO_Init(GPIOA, &GPIO_InitStructure);   
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;    //??????
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//???GPIOA.2
+   
+  //USART2_RX      GPIOA.3
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;//PA3
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//????
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//???GPIOA.3  
 
-  /* 配置USART1_RX（PA10）引脚GPIO状态 */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//上拉输入
-  GPIO_Init(GPIOA, &GPIO_InitStructure);  
+  //USART2 NVIC ??
+  NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3 ;//?????3
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;        //????3
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;            //IRQ????
+    NVIC_Init(&NVIC_InitStructure);    //??????????NVIC???//USART ?????
 
-  /* USART 初始化设置 */
-	USART_InitStructure.USART_BaudRate = bound;  //波特率：一般设置为115200;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;  //字长：为8位数据格式
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;  //停止位：一个停止位
-	USART_InitStructure.USART_Parity = USART_Parity_No;  //校验位：无奇偶校验位
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//硬件流控制:无硬件数据流控制
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//工作模式：收发模式
-  USART_Init(USART1, &USART_InitStructure);  //根据指定的参数初始化串口1
+    USART_InitStructure.USART_BaudRate = bound;//?????
+    USART_InitStructure.USART_WordLength = USART_WordLength_8b;//???8?????
+    USART_InitStructure.USART_StopBits = USART_StopBits_1;//?????
+    USART_InitStructure.USART_Parity = USART_Parity_No;//??????
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//????????
+    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;    //????
 
-  #if EN_USART1_RX  
-  /* 配置嵌套向量中断控制器NVIC */ 
-  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;  //配置USART1为中断源
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2; //抢占优先级2
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;  //子优先级0
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;  //IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	 //根据指定的参数初始化NVIC寄存器
-	
-  /* 使能串口接收中断 */ 
-  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-  #endif
-  /* 串口1使能 */
-  USART_Cmd(USART1, ENABLE);  //使能串口 
+  USART_Init(USART2, &USART_InitStructure); //?????2
+  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//????????
+  USART_Cmd(USART2, ENABLE);                    //????2
 }
 
 /* 选择不同的方式支持printf函数，要包含stdio.h头文件 */
@@ -82,10 +70,10 @@ void usart1_init(uint32_t bound)
 int fputc(int ch, FILE *f)
 {
   /* 发送一个字节数据到串口 */
-  USART_SendData(USART1, (uint8_t) ch);
+  USART_SendData(USART2, (uint8_t) ch);
   
   /* 等待发送完毕 */
-  while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);		
+  while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);		
 
   return (ch);
 }
@@ -98,9 +86,9 @@ int fputc(int ch, FILE *f)
 int fgetc(FILE *f)
 {
   /* 等待串口输入数据 */
-  while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET);
+  while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET);
 
-  return (int)USART_ReceiveData(USART1);
+  return (int)USART_ReceiveData(USART2);
 }
 
 #else  //不使用microlib就可以支持printf函数  
@@ -129,9 +117,9 @@ void _sys_exit(int x)
   */ 
 int fputc(int ch, FILE *f)
 {      
-	while(USART_GetFlagStatus(USART1,USART_FLAG_TC)==RESET);
+	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET);
   
-  USART_SendData(USART1,(uint8_t)ch);   
+  USART_SendData(USART2,(uint8_t)ch);   
 
 	return ch;
 }
