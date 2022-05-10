@@ -3,9 +3,18 @@
 
 #include "stm32f10x.h"
 //端口宏定义
+//VBAT
+#define UL_VBAT_PORT GPIOA
+#define UL_VBAT_PIN GPIO_Pin_1
+//PWR
+#define UL_PWR_PORT GPIOB
+#define UL_PWR_PIN GPIO_Pin_3
+//急停按钮
+#define UL_EMERGY_PORT GPIOB
+#define UL_EMERGY_PIN GPIO_Pin_14
 //B4
-#define UL1_TRIG_CLK RCC_APB2Periph_GPIOA
-#define UL1_TRIG_PORT GPIOA
+#define UL1_TRIG_CLK RCC_APB2Periph_GPIOB
+#define UL1_TRIG_PORT GPIOB
 #define UL1_TRIG_PIN GPIO_Pin_4
 
 //A8

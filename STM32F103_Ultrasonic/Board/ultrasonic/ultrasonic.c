@@ -36,6 +36,8 @@ void ULTRASONIC_Init(void)
   GPIO_Init(UL2_TRIG_PORT, &GPIO_InitStructure);
   GPIO_Init(UL3_TRIG_PORT, &GPIO_InitStructure);
   GPIO_Init(UL4_TRIG_PORT, &GPIO_InitStructure);
+	
+	
 
   GPIO_InitStructure.GPIO_Pin = UL1_ECHO_PIN | UL2_ECHO_PIN | UL3_ECHO_PIN | UL4_ECHO_PIN; // 端口配置
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;                                            //下拉输入
@@ -52,7 +54,7 @@ void ULTRASONIC_Init(void)
   //GPIOC.5 中断线以及中断初始化配置
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource8);
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource15 | GPIO_PinSource8 | GPIO_PinSource9);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line8 | EXTI_Line7;
+  EXTI_InitStructure.EXTI_Line = EXTI_Line8 | EXTI_Line15 | EXTI_Line9;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling; //上升沿触发
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
