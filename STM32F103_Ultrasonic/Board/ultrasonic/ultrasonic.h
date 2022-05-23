@@ -54,7 +54,7 @@
 
 typedef struct
 {
-  float distance;
+  int distance;
   uint8_t flag; //上升沿触发标志位
   uint32_t start_time;
   uint32_t end_time;
