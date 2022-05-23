@@ -36,22 +36,25 @@ int main(void)
   while (1)
   {
     ULTRASONIC_Measure();
-		//超声波
-    u2_printf("%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x", 
-								0xAA, 0x03,
-                printf("0x%x", (int)ultrasonic[0].distance % 10), printf("0x%x", (int)ultrasonic[0].distance / 10),
-                printf("0x%x", (int)ultrasonic[1].distance % 10), printf("0x%x", (int)ultrasonic[1].distance / 10),
-                printf("0x%x", (int)ultrasonic[2].distance % 10), printf("0x%x", (int)ultrasonic[2].distance / 10),
-                printf("0x%x", (int)ultrasonic[3].distance % 10), printf("0x%x", (int)ultrasonic[3].distance / 10));
-    
-    delay_ms(500);
+		
 		//心跳包
-		u2_printf("0xAA, 0x01, 0x00, 0xAB");
+		//u2_printf("0xAA, 0x01, 0x00, 0xAB");
 		//关机
-		if(!GPIO_ReadInputDataBit(UL_EMERGY_PORT, UL_EMERGY_PIN)){//key0被按下
+		if(GPIO_ReadInputDataBit(UL_EMERGY_PORT, UL_EMERGY_PIN))//key0被按下
 			{
 				u2_printf("0xAA,0x04");
+			}else{
+				
+				//超声波
+				u2_printf("%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x", 
+										0xAA, 0x03,
+										printf("0x%x", (int)ultrasonic[0].distance % 10), printf("0x%x", (int)ultrasonic[0].distance / 10),
+										printf("0x%x", (int)ultrasonic[1].distance % 10), printf("0x%x", (int)ultrasonic[1].distance / 10),
+										printf("0x%x", (int)ultrasonic[2].distance % 10), printf("0x%x", (int)ultrasonic[2].distance / 10),
+										printf("0x%x", (int)ultrasonic[3].distance % 10), printf("0x%x", (int)ultrasonic[3].distance / 10));
+				
+				delay_ms(500);
 			}
-		
-  }
+		}
+
 }
