@@ -50,25 +50,42 @@ void USART2_IRQHandler(void)
     if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
     {
         res = USART_ReceiveData(USART2);
-        USART_SendData(USART2, res);			//把接收到的数据发送出去
+        //USART_SendData(USART2, res);			//把接收到的数据发送出去
     }
 
 }
 //自定义串口2 的printf 函数
 char UART2_TX_BUF[200];
-void u2_printf(char* fmt, ...)					//无法列出传递函数的所有实参的类型和数目时,可以用省略号指定参数表
+//void u2_printf(const char* fmt, ...)					//无法列出传递函数的所有实参的类型和数目时,可以用省略号指定参数表
+//{
+//    u16 i, j;
+//    va_list ap;													//va_list 是一个字符指针，可以理解为指向当前参数的一个指针，取参必须通过这个指针进行。
+//    va_start(ap, fmt);									//va_start函数来获取参数列表中的参数，使用完毕后调用va_end()结束
+//    vsprintf((char*)UART2_TX_BUF, fmt, ap);	// 把生成的格式化的字符串存放在这里
+//    va_end(ap);
+//		
+//    i = strlen((const char*)UART2_TX_BUF);              //此次发送数据的长度
+//    for(j = 0; j < i; j++)                                                    //循环发送数据
+//    {
+//        while((USART2->SR & 0X40) == 0);                    //循环发送,直到发送完毕
+//        USART2->DR = UART2_TX_BUF[j];
+//    }
+//		
+//}
+
+
+void SendData(void)					//无法列出传递函数的所有实参的类型和数目时,可以用省略号指定参数表
 {
     u16 i, j;
-    va_list ap;													//va_list 是一个字符指针，可以理解为指向当前参数的一个指针，取参必须通过这个指针进行。
-    va_start(ap, fmt);									//va_start函数来获取参数列表中的参数，使用完毕后调用va_end()结束
-    vsprintf((char*)UART2_TX_BUF, fmt, ap);	// 把生成的格式化的字符串存放在这里
-    va_end(ap);
+
+		
     i = strlen((const char*)UART2_TX_BUF);              //此次发送数据的长度
     for(j = 0; j < i; j++)                                                    //循环发送数据
     {
         while((USART2->SR & 0X40) == 0);                    //循环发送,直到发送完毕
         USART2->DR = UART2_TX_BUF[j];
     }
+		
 }
 
 
