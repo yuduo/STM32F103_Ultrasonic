@@ -67,6 +67,8 @@ void ULTRASONIC_Init(void)
   NVIC_Init(&NVIC_InitStructure);
 
   TIM3_Int_Init(9, 71); //初始化TIM3定时器，计数一次为1/100000S（10us）：1/(72M/(719+1))s
+	
+
 }
 
 //发送d大于10us的脉冲触发信号
