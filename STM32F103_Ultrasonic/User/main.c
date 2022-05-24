@@ -33,7 +33,7 @@ int main(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(UL_EMERGY_PORT, &GPIO_InitStructure);
-	GPIO_ResetBits(UL_EMERGY_PORT, UL_EMERGY_PIN);
+	GPIO_SetBits(UL_EMERGY_PORT, UL_EMERGY_PIN);
 
 	while (1)
 	{
@@ -45,7 +45,7 @@ int main(void)
 		//关机
 		if (GPIO_ReadInputDataBit(UL_EMERGY_PORT, UL_EMERGY_PIN)) // key0被按下
 		{
-			for(i = 0; i < 200;i++)
+			for(i = 0; i < SEND_DATA_SIZE;i++)
 			UART2_TX_BUF[i]=0x00;
 			UART2_TX_BUF[0] = 0xAA;
 			UART2_TX_BUF[1] = 0x0C;
@@ -55,18 +55,18 @@ int main(void)
 		{
 
 			//超声波
-						for(i = 0; i < 200;i++)
+						for(i = 0; i < SEND_DATA_SIZE;i++)
 			UART2_TX_BUF[i]=0x00;
 			UART2_TX_BUF[0] = 0xAA;
 			UART2_TX_BUF[1] = 0x03;
-			UART2_TX_BUF[2] = (ultrasonic[0].distance % 10);
-			UART2_TX_BUF[3] = ultrasonic[0].distance / 10;
-			UART2_TX_BUF[4] = ultrasonic[1].distance % 10;
-			UART2_TX_BUF[5] = ultrasonic[1].distance / 10;
-			UART2_TX_BUF[6] = ultrasonic[2].distance % 10;
-			UART2_TX_BUF[7] = ultrasonic[2].distance / 10;
-			UART2_TX_BUF[8] = ultrasonic[3].distance % 10;
-			UART2_TX_BUF[9] = ultrasonic[3].distance / 10;
+			UART2_TX_BUF[2] = (ultrasonic[0].distance*100 / 256);
+			UART2_TX_BUF[3] = ultrasonic[0].distance*100 % 256;
+			UART2_TX_BUF[4] = ultrasonic[1].distance*100 / 256;
+			UART2_TX_BUF[5] = ultrasonic[1].distance*100 % 256;
+			UART2_TX_BUF[6] = ultrasonic[2].distance*100 / 256;
+			UART2_TX_BUF[7] = ultrasonic[2].distance*100 % 256;
+			UART2_TX_BUF[8] = ultrasonic[3].distance*100 / 256;
+			UART2_TX_BUF[9] = ultrasonic[3].distance*100 % 256;
 			SendData();
 
 

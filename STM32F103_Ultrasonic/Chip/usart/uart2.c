@@ -55,7 +55,7 @@ void USART2_IRQHandler(void)
 
 }
 //自定义串口2 的printf 函数
-char UART2_TX_BUF[200];
+char UART2_TX_BUF[SEND_DATA_SIZE];
 //void u2_printf(const char* fmt, ...)					//无法列出传递函数的所有实参的类型和数目时,可以用省略号指定参数表
 //{
 //    u16 i, j;
